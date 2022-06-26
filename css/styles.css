@@ -1,0 +1,38 @@
+body {
+    background-color: #EAF6F6;
+  }
+
+  hr {
+    border-style: dotted none none none;
+    border-color: grey;
+    border-width: 5px;
+    width: 5%;
+  }
+
+  hr:hover {
+    border-color: blue;
+  }
+
+  h1 {
+    color: #66bfbf;
+  }
+
+  h1:hover {
+    color: gold;
+  }
+
+  h3 {
+    color: #66bfbf;
+  }
+
+  h3:hover {
+    color: black;
+  }
+
+  img:hover {
+    transform: scale(1.2);
+  }
+
+.circular {
+  border-radius: 15%
+}
