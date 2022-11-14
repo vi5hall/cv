@@ -1,0 +1,322 @@
+*****************Cdma*******************
+
+clc
+clear all
+Ad=input('Enter A data : ');
+Bd=input('Enter B data : ');
+Ak=input('Enter key for A : ');
+Bk=input('Enter key for B : ');
+if (Ad == 0)
+ Ad=-1;
+end
+if (Bd == 0)
+ Bd=-1;
+end
+m=length(Ak);
+n=length(Bk);
+for i=1:m
+ if (Ak(i) == 0)
+ Ak(i)=-1;
+ end
+end
+for i=1:n
+ if (Bk(i) == 0)
+ Bk(i)=-1;
+ end
+end
+As=Ad*Ak;
+Bs=Bd*Bk;
+Cs=As+Bs
+a=Cs.*Ak
+b=Cs.*Bk
+m=length(a);
+n=length(b);
+k=0;
+for i=1:m
+ k=k+a(i);
+end
+k
+c=0;
+for i=1:n
+ c=c+b(i);
+ end
+c
+if (k > c)
+ disp('Since k > c connect Tx A to Rx a')
+else
+ disp('Since k < c connect Tx B to Rx b')
+end
+
+
+******************Cell clustering********************
+
+clear all;
+clc;
+i=input('enter value of i:');
+j=input('enter value of j:');
+R=input('enter value of radius of cell');
+cityarea=input('enter city area');
+N=i^2+i*j+j^2;
+areacell= 2.5981*R^2;
+totalcells=round(cityarea/areacell)
+ch_bw=60*10^3; % channel bandwidth given
+spectr=40*10^6; % spectrumsize given
+totch=round(spectr/ch_bw); % Total channels
+k=round(totch/N)
+M=round(totalcells/N)
+c=M*k*N
+plexp=4; %path loss exponent
+s_i=(((3*N)^0.5)^plexp)/6 % i0 =6 total number of co-channels
+s_idb=10*log10(s_i);
+
+
+##################Dsss##########################
+
+clc;
+close all;
+clear all;
+b=round(rand(1,20));
+pattern=[];
+for k=1:20
+ if b(1,k)==0
+ sig=zeros(1,6);
+ else
+ sig=ones(1,6);
+ end
+ pattern=[pattern sig];
+end
+subplot(3,1,1);
+plot(pattern);
+axis([-1 130 -.5 1.5]);
+title('\bf\it Original Bit Sequence');
+% Generating the pseudo random bit pattern for spreading
+spread_sig=round(rand(1,120));
+subplot(3,1,2);
+plot(spread_sig);
+axis([-1 130 -.5 1.5]);
+title('\bf\it Pseudorandom Bit Sequence');
+% XORing the pattern with the spread signal
+hopped_sig=xor(pattern,spread_sig);
+% Modulating the hopped signal
+dsss_sig=[];
+t=[0:100];
+fc=50
+c1=cos(2*pi*fc*t);
+c2=cos(2*pi*fc*t+pi);
+for k=1:120
+ if hopped_sig(1,k)==0
+ dsss_sig=[dsss_sig c1];
+ else
+ dsss_sig=[dsss_sig c2];
+ end
+end
+subplot(3,1,3);
+plot([1:12120],dsss_sig);
+axis([-1 12220 -1.5 1.5]);
+title('\bf\it DSSS Signal');
+
+
+
+**********MIMO************
+clear all
+clc
+%Shannon capacity
+snr=0;
+for i = 1:10
+snr = snr +2;
+c=(log(1+10^(snr/10)))/log(2);
+x(i)=snr;
+y(i)=c;
+end
+figure
+plot(x,y,'-','LineWidth',1.5)
+hold on
+% capacity of MIMO Link with NR=2, NT=2
+NR=2;
+rand('state',456321)
+snr=0;
+for i=1:10;
+snr=snr+2;
+for j=1:10000;
+c(j)=(NR*log(1+(10^(snr/10))*abs(normrnd(0,1)))/log(2));
+end
+yy(i)=mean(c);
+xx(i)=snr;
+end
+plot(xx,yy,':','LineWidth',1.5)
+% capacity of MIMO Link with NR=3, NT=3
+NR=3;
+rand('state',456321)
+snr=0;
+for i=1:10;
+snr=snr+2;
+for j=1:10000;
+c(j)=(NR*log(1+(10^(snr/10))*abs(normrnd(0,1)))/log(2));
+end
+yy(i)=mean(c);
+xx(i)=snr;
+end
+plot(xx,yy,'-.','LineWidth',1.5)
+% capacity of MIMO Link with NR=4, NT=4
+NR=4;
+rand('state',456321)
+snr=0;
+for i=1:10;
+snr=snr+2;
+for j=1:10000;
+c(j)=(NR*log(1+(10^(snr/10))*abs(normrnd(0,1)))/log(2));
+end
+yy(i)=mean(c);
+xx(i)=snr;
+end
+plot(xx,yy,'--','LineWidth',1.5)
+xlabel('SNR(dB)')
+ylabel('Capacity (bit/s/Hz)')
+grid on
+legend('Shannon Capacity','MIMO, NT=NR=2','MIMO, NT=NR=3','MIMO, NT=NR=4')
+title('MIMO Capacity')
+
+
+
+########PN###############
+clc; 
+clear all; 
+close all; 
+x1=[1 1 1 1 1 1]; 
+n1=length (x1); 
+len1=2^n1-1; 
+p1 (1,1) = x1(1,1); 
+z1 = x1; 
+for y1 = 2 : len1 
+x1=z1; 
+for i = 1 : n1
+    if (i==1) 
+        z1 (1,i) = xor (x1(1,5),x1(1,6)); 
+    else z1 (1,i) = x1(1,i-1);
+    end
+end 
+p1(1,y1)=z1(1,6);
+end
+subplot 211; 
+stem (p1);
+
+
+############Rayleigh_PDF###############
+%----------Input Section----------------
+N=1000000; %Number of samples to generate
+variance = 0.2; % Variance of underlying Gaussian random variables
+%---------------------------------------
+%Independent Gaussian random variables with zero mean and unit variance
+x = randn(1, N);
+y = randn(1, N);
+%Rayleigh fading envelope with the desired variance
+r = sqrt(variance*(x.^2 + y.^2));
+%Define bin steps and range for histogram plotting
+step = 0.1; range = 0:step:3;
+%Get histogram values and approximate it to get the pdf curve
+h = hist(r, range);
+approxPDF = h/(step*sum(h)); %Simulated PDF from the x and y samples
+%Theoritical PDF from the Rayleigh Fading equation
+theoretical = (range/variance).*exp(-range.^2/(2*variance));
+plot(range, approxPDF,'b*', range, theoretical,'r');
+title('Simulated and Theoretical Rayleigh PDF for variance = 0.5')
+legend('Simulated PDF','Theoretical PDF')
+xlabel('r --->');
+ylabel('P(r)---> ');
+grid;
+
+
+
+##################Spectrum Sensing###########################
+clc;
+clearall;
+closeall;
+u = 1;
+snr_avgdB =0;
+snr_avg = power(10,snr_avgdB/10);
+Base= 0.01:0.02:1;
+Pf =Base.^2;
+for i=1:length(Pf)
+%Threshold
+Th(i) = gaminv(1-Pf(i),u,1)*2;
+pd(i) = marcumq(sqrt(snr_avg*2*u),sqrt(Th(i)),u);
+end
+plot(Pf,pd,'->r','Linewidth',2)
+hold on
+snr_avgdB =3;
+snr_avg = power(10,snr_avgdB/10);
+for i=1:length(Pf)
+%Threshold
+Th1(i) = gaminv(1-Pf(i),u,1)*2;
+pd1(i) = marcumq(sqrt(snr_avg*2*u),sqrt(Th1(i)),u);
+end
+plot(Pf,pd1,'-ob','Linewidth',2)
+hold on
+snr_avgdB =8;
+snr_avg = power(10,snr_avgdB/10);
+for i=1:length(Pf)
+%Threshold
+Th2(i) = gaminv(1-Pf(i),u,1)*2;
+pd2(i) = marcumq(sqrt(snr_avg*2*u),sqrt(Th2(i)),u);
+end
+plot(Pf,pd2,'-*k','Linewidth',2)
+hold on
+xlabel('Probability of False alarm (Pf)');
+ylabel('Probability of detection (Pd)');
+legend ('SNR=0db','SNR=3db','SNR=8db');
+grid on;
+
+
+#########################Walsh Code###########################
+
+clc
+clear all
+h=input('Enter the Kernel matrix : '); d=input('Enter the square matrix dimension : '); H=h;
+D=log2(d);
+for i=1:(D-1)
+H1=h(1,1).*H;
+H2=h(1,2).*H;
+H3=h(2,1).*H;
+H4=h(2,2).*H;
+H=[H1 H2;H3 H4];
+end
+H=[H1 H2;H3 H4];
+A=[];B=[];
+for i=1:d
+A = strvcat(A,sprintf('%+5.2g',H(i,:)));
+end
+A;
+[x v]=size(A);
+s=[];b=[];m=4;walsh_code=[];
+for j=1:x
+for i=0:5:(v-1)
+if (i == 0)
+b=[b A(j,m)];
+%b=[b [A(j,(i+1)) blanks(0) A(j,m)]];
+end
+if (i ~= 0) && (m ~= (v-1))
+m=m+5;
+b=[b [A(j,i) blanks(1) A(j,m)]];
+end
+if (m == (v-1))
+b=[b A(j,v)];
+end
+b;
+end
+walsh_code=[walsh_code;b];
+m=4;
+b=[];
+end
+walsh_code;
+[x v]=size(walsh_code);
+final_code=[];final_walsh_codeword=[];
+for i=1:v
+dummy=walsh_code(:,i)';
+dummy=[dummy(1,1:(x/2)) char(45) dummy(1,((x/2)+1):x)]; final_walsh_codeword(:,i)=dummy';
+end
+final_walsh_codeword=char(final_walsh_codeword);
+[X V]=size(final_walsh_codeword);W=V-1;
+for i=1:X
+final_code=[final_code;[final_walsh_codeword(i,1:(W/2)) blanks(1) char(124) blanks(1) final_walsh_codeword(i,((W/2)+2):V)]];
+end
+final_code
